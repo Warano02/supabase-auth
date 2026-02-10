@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 
-export default function GoogleAuthButton() {
+export default function GoogleAuthButton({mode}: {mode: 'signup' | 'login'}) {
     const [loading, setLoading] = useState(false)
 
     const handleGoogleLogin = async () => {

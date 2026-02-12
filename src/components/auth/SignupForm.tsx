@@ -54,11 +54,15 @@ export default function SignupForm() {
         password: formData.password,
 
         options: {
+           data: {
+            full_name: formData.fullName,
+          },
           emailRedirectTo: `${window.location.origin}/protected`,
         },
       });
+
       if (error) throw error;
-      router.push("/auth/sign-up-success");
+      router.push("/sign-up-success");
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
     } finally {

@@ -4,8 +4,11 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import GoogleAuthButton from './GoogleAuthButton'
+import createClient from '@/lib/supabase/client'
 
 export default function LoginForm() {
+  const supabase = createClient()
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -18,11 +21,17 @@ export default function LoginForm() {
     setLoading(true)
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const { data: { user }, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+      if (signInError) throw signInError
       
+      console.log("user login ", user);
+
       router.push('/user')
     } catch (err) {
-      setError('Une erreur est survenue. Veuillez réessayer.')
+      setError(err instanceof Error ? err.message : 'Une erreur est survenue. Veuillez réessayer.')
     } finally {
       setLoading(false)
     }
@@ -38,7 +47,7 @@ export default function LoginForm() {
         )}
 
         <div>
-          <label  htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2" >
+          <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2" >
             Adresse email
           </label>
           <input
@@ -55,8 +64,8 @@ export default function LoginForm() {
         </div>
 
         <div>
-          <label 
-            htmlFor="password" 
+          <label
+            htmlFor="password"
             className="block text-sm font-medium text-gray-300 mb-2"
           >
             Mot de passe
@@ -85,12 +94,12 @@ export default function LoginForm() {
             </span>
           </label>
 
-          <a  href="#"   className="text-gray-400 hover:text-white transition-colors" >
+          <a href="#" className="text-gray-400 hover:text-white transition-colors" >
             Mot de passe oublié ?
           </a>
         </div>
 
-        <button type="submit"   disabled={loading} className="w-full py-3 px-4 bg-white text-black rounded-lg font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-white cursor-pointer focus:ring-offset-2 focus:ring-offset-zinc-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+        <button type="submit" disabled={loading} className="w-full py-3 px-4 bg-white text-black rounded-lg font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-white cursor-pointer focus:ring-offset-2 focus:ring-offset-zinc-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
           {loading ? (
             <span className="flex items-center justify-center">
               <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -116,7 +125,7 @@ export default function LoginForm() {
         </div>
 
         <div className="mt-6">
-          <GoogleAuthButton />
+          <GoogleAuthButton mode='login' />
         </div>
       </div>
     </div>

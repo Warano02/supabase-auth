@@ -3,14 +3,18 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import GoogleAuthButton from './GoogleAuthButton'
+import createClient from '@/lib/supabase/client'
 
 export default function SignupForm() {
+  const supabase = createClient()
+
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     password: '',
     confirmPassword: ''
   })
+  
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [acceptedTerms, setAcceptedTerms] = useState(false)
@@ -27,7 +31,6 @@ export default function SignupForm() {
     e.preventDefault()
     setError(null)
 
-    // Validation
     if (formData.password !== formData.confirmPassword) {
       setError('Les mots de passe ne correspondent pas')
       return
@@ -46,13 +49,20 @@ export default function SignupForm() {
     setLoading(true)
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      router.push('/dashboard')
-    } catch (err) {
-      setError('Une erreur est survenue. Veuillez réessayer.')
+      const { error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+
+        options: {
+          emailRedirectTo: `${window.location.origin}/protected`,
+        },
+      });
+      if (error) throw error;
+      router.push("/auth/sign-up-success");
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -66,8 +76,8 @@ export default function SignupForm() {
         )}
 
         <div>
-          <label 
-            htmlFor="fullName" 
+          <label
+            htmlFor="fullName"
             className="block text-sm font-medium text-gray-300 mb-2"
           >
             Nom complet
@@ -86,8 +96,8 @@ export default function SignupForm() {
         </div>
 
         <div>
-          <label 
-            htmlFor="email" 
+          <label
+            htmlFor="email"
             className="block text-sm font-medium text-gray-300 mb-2"
           >
             Adresse email
@@ -106,8 +116,8 @@ export default function SignupForm() {
         </div>
 
         <div>
-          <label 
-            htmlFor="password" 
+          <label
+            htmlFor="password"
             className="block text-sm font-medium text-gray-300 mb-2"
           >
             Mot de passe
@@ -129,8 +139,8 @@ export default function SignupForm() {
         </div>
 
         <div>
-          <label 
-            htmlFor="confirmPassword" 
+          <label
+            htmlFor="confirmPassword"
             className="block text-sm font-medium text-gray-300 mb-2"
           >
             Confirmer le mot de passe

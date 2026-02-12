@@ -76,12 +76,12 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith("/admin") && user) {
     const { data: profile } = await supabase
       .from("profiles")
-      .select("role")
+      .select("*")
       .eq("id", user.id)
       .single();
-    
+  
     if (profile?.role !== "admin") {
-      return NextResponse.redirect(new URL("/user", request.url));
+      return NextResponse.redirect(new URL("/not?user="+JSON.stringify(profile.role), request.url));
     }
   }
 

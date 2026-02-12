@@ -1,16 +1,23 @@
 'use client'
 
+import createClient from '@/lib/supabase/client'
 import { useState } from 'react'
 
-export default function GoogleAuthButton({mode}: {mode: 'signup' | 'login'}) {
+export default function GoogleAuthButton({ mode }: { mode: 'signup' | 'login' }) {
+    const supabase = createClient()
     const [loading, setLoading] = useState(false)
 
     const handleGoogleLogin = async () => {
         setLoading(true)
         try {
 
-            await new Promise(resolve => setTimeout(resolve, 1000))
-            console.log('Connexion Google...')
+            await supabase.auth.signInWithOAuth({
+                provider: "google",
+                options: {
+                    redirectTo: `http://localhost:3000/callback`,
+                },
+            })
+            
         } catch (err) {
             console.error('Erreur:', err)
         } finally {

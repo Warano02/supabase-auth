@@ -1,4 +1,5 @@
-import { createClient } from '@/lib/supabase/server'
+
+import createClient from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
@@ -6,8 +7,10 @@ export async function GET(request: Request) {
   const code = searchParams.get('code')
   let next = searchParams.get('next') ?? '/'
   if (!next.startsWith('/')) {
-    next = '/'
+    next = '/admin'
   }
+
+  
 
   if (code) {
     const supabase = await createClient()
@@ -22,8 +25,10 @@ export async function GET(request: Request) {
       } else {
         return NextResponse.redirect(`${origin}${next}`)
       }
+    }else{
+      return NextResponse.redirect(`${origin}/auth-code-error?code=${code}&next=${next}&error=${JSON.stringify(error)}`)
+      
     }
   }
 
-  return NextResponse.redirect(`${origin}/auth/auth-code-error`)
 }

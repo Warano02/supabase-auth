@@ -80,7 +80,7 @@ export async function middleware(request: NextRequest) {
       .eq("id", user.id)
       .single();
   
-    if (profile?.role !== "admin") {
+    if (profile?.role !== "'admin'") {
       return NextResponse.redirect(new URL("/not?user="+JSON.stringify(profile.role), request.url));
     }
   }
